@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="glad.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="stb.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Position.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="openGLTut\debs\include\stb_image.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glad\glad.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\KHR\khrplatform.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\GLFW\glfw3.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\GLFW\glfw3native.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\camera.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\shader_m.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_common.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_exponential.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_geometric.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_integer.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_matrix.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_packing.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_trigonometric.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_vector_relational.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\precision.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_gentype.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_int.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_mat.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_vec.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\glm\gtc\functions.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Position.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\assimp\config.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="openGLTut\debs\include\assimp\revision.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBox.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeFileParser.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="openGLTut\debs\lib\glfw3.dll" />
+    <None Include="openGLTut\debs\include\glm\detail\type_vec_simd.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\gtx\float_normalize.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="vertex_shader.vs" />
+    <None Include="openGLTut\debs\include\glm\detail\type_gentype.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\detail\type_mat.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\detail\type_vec.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\gtc\color_encoding.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\gtc\functions.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\gtc\reciprocal.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\gtc\vec1.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="openGLTut\debs\include\glm\gtx\number_precision.inl">
+      <Filter>Headerdateien</Filter>
+    </None>
+    <None Include="cubeShader.fs" />
+    <None Include="cubeShader.vs" />
+    <None Include="fragment_shader.fs" />
+    <None Include="lightCubeShader.fs" />
+    <None Include="lightCubeShader.vs" />
+    <None Include="fxaa.vs" />
+    <None Include="fxaa.fs" />
+    <None Include="model_loading.vs" />
+    <None Include="model_loading.fs" />
+    <None Include="skybox.fs" />
+    <None Include="skybox.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="openGLTut\debs\lib\glfw3.lib" />
+    <Library Include="openGLTut\debs\lib\glfw3_mt.lib" />
+    <Library Include="openGLTut\debs\lib\glfw3dll.lib" />
+    <Library Include="openGLTut\debs\lib\assimp-vc143-mtd.lib" />
+  </ItemGroup>
+</Project>

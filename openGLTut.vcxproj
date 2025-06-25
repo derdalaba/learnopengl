@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{abfdab0f-eccc-4676-bc02-8cb9ed8029d0}</ProjectGuid>
+    <RootNamespace>openGLTut</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)openGLTut\debs\include;C:\Users\chris\Desktop\assimp\include;$(IncludePath)</IncludePath>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <LibraryPath>$(SolutionDir)openGLTut\debs\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\chris\Desktop\assimp\include;$(SolutionDir)openGLTut\debs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)openGLTut\debs\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)openGLTut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)openGLTut/debs/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)openGLTut/debs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="glad.c" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Position.cpp" />
+    <ClCompile Include="stb.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CubeFileParser.h" />
+    <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="openGLTut\debs\include\assimp\config.h" />
+    <ClInclude Include="openGLTut\debs\include\assimp\revision.h" />
+    <ClInclude Include="openGLTut\debs\include\camera.h" />
+    <ClInclude Include="openGLTut\debs\include\glad\glad.h" />
+    <ClInclude Include="openGLTut\debs\include\GLFW\glfw3.h" />
+    <ClInclude Include="openGLTut\debs\include\GLFW\glfw3native.h" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_common.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_exponential.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_geometric.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_integer.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_matrix.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_packing.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_trigonometric.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\func_vector_relational.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\precision.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_gentype.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_int.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_mat.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\detail\type_vec.hpp" />
+    <ClInclude Include="openGLTut\debs\include\glm\gtc\functions.hpp" />
+    <ClInclude Include="openGLTut\debs\include\KHR\khrplatform.h" />
+    <ClInclude Include="openGLTut\debs\include\stb_image.h" />
+    <ClInclude Include="openGLTut\debs\include\shader_m.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Position.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cubeShader.fs" />
+    <None Include="cubeShader.vs" />
+    <None Include="fragment_shader.fs" />
+    <None Include="fxaa.fs" />
+    <None Include="fxaa.vs" />
+    <None Include="lightCubeShader.fs" />
+    <None Include="lightCubeShader.vs" />
+    <None Include="model_loading.fs" />
+    <None Include="model_loading.vs" />
+    <None Include="openGLTut\debs\include\glm\detail\type_gentype.inl" />
+    <None Include="openGLTut\debs\include\glm\detail\type_mat.inl" />
+    <None Include="openGLTut\debs\include\glm\detail\type_vec.inl" />
+    <None Include="openGLTut\debs\include\glm\detail\type_vec_simd.inl" />
+    <None Include="openGLTut\debs\include\glm\gtc\color_encoding.inl" />
+    <None Include="openGLTut\debs\include\glm\gtc\functions.inl" />
+    <None Include="openGLTut\debs\include\glm\gtc\reciprocal.inl" />
+    <None Include="openGLTut\debs\include\glm\gtc\vec1.inl" />
+    <None Include="openGLTut\debs\include\glm\gtx\float_normalize.inl" />
+    <None Include="openGLTut\debs\include\glm\gtx\number_precision.inl" />
+    <None Include="openGLTut\debs\lib\glfw3.dll" />
+    <None Include="skybox.fs" />
+    <None Include="skybox.vs" />
+    <None Include="vertex_shader.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="openGLTut\debs\lib\assimp-vc143-mtd.lib" />
+    <Library Include="openGLTut\debs\lib\glfw3.lib" />
+    <Library Include="openGLTut\debs\lib\glfw3dll.lib" />
+    <Library Include="openGLTut\debs\lib\glfw3_mt.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
