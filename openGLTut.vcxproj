@@ -146,8 +146,10 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Position.cpp" />
+    <ClCompile Include="RenderObject.h" />
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
