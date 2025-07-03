@@ -29,10 +29,12 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 unsigned int loadTexture(const char* path);
 void toggleWireFrame();
+void render();
+//void picking();
 
 // settings
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 1200;
+unsigned int SCR_WIDTH = 1600;
+unsigned int SCR_HEIGHT = 1200;
 
 bool wireframe = false;
 
@@ -47,7 +49,7 @@ Player player(camera);
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-
+float currentFrame = static_cast<float>(glfwGetTime());
 
 int main()
 {   
@@ -109,64 +111,67 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-	Shader model_loading_shader("model_loading.vs", "model_loading.fs");
+    Shader model_loading_shader("model_loading.vs", "model_loading.fs");
     Shader lightShader("lightCubeShader.vs", "lightCubeShader.fs");
-	Shader skyboxShader("skybox.vs", "skybox.fs");
+    Shader skyboxShader("skybox.vs", "skybox.fs");
 
-    
-	Model plane("C:\\Users\\chris\\Documents\\blender_models\\grass_ground.obj");
+
+    Model plane("C:\\Users\\chris\\Documents\\blender_models\\grass_ground.obj");
     Model ball("C:\\Users\\chris\\Documents\\blender_models\\ball.obj");
     Model backpack(".\\resources\\backpack\\backpack.obj");
 
     SkyBox skyBox;
+
+   // unsigned int fbo;
+   // glGenFramebuffers(1, &fbo);
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
         // per-frame time logic
         // --------------------
-        float currentFrame = static_cast<float>(glfwGetTime());
+        currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // input
         // -----
         processInput(window);
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::vec3 lightPos(5.3f, 5.0f, 5.0f);
+        glm::vec3 lightPos(5.3f, 5.0f, 5.0f);
 
         glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.95f);
-		
+
         glm::mat4 projection = glm::perspective(glm::radians(player.getCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
         glm::mat4 view = player.getCamera().GetViewMatrix();
 
-		glm::vec3 diffuseColor = glm::vec3(1.0f); // decrease the influence
-		glm::vec3 ambientColor = glm::vec3(0.3f); // low influence
+        glm::vec3 diffuseColor = glm::vec3(1.0f); // decrease the influence
+        glm::vec3 ambientColor = glm::vec3(0.3f); // low influence
 
-		model_loading_shader.use();
-		model_loading_shader.setMat4("projection", projection);
-		model_loading_shader.setMat4("view", view);
+        model_loading_shader.use();
+        model_loading_shader.setMat4("projection", projection);
+        model_loading_shader.setMat4("view", view);
         model_loading_shader.setFloat("gamma", 1.0f);
 
-		model_loading_shader.setVec3("viewPos", player.getCamera().Position);
+        model_loading_shader.setVec3("viewPos", player.getCamera().Position);
 
-		model_loading_shader.setVec3("light.position", lightPos);
-		model_loading_shader.setVec3("light.ambient", ambientColor);
-		model_loading_shader.setVec3("light.diffuse", diffuseColor);
-		model_loading_shader.setVec3("light.specular", lightColor);
+        model_loading_shader.setVec3("light.position", lightPos);
+        model_loading_shader.setVec3("light.ambient", ambientColor);
+        model_loading_shader.setVec3("light.diffuse", diffuseColor);
+        model_loading_shader.setVec3("light.specular", lightColor);
 
-		model_loading_shader.setFloat("light.constant", 1.0f);
-		model_loading_shader.setFloat("light.linear", 0.09f);
-		model_loading_shader.setFloat("light.quadratic", 0.032f);
+        model_loading_shader.setFloat("light.constant", 1.0f);
+        model_loading_shader.setFloat("light.linear", 0.09f);
+        model_loading_shader.setFloat("light.quadratic", 0.032f);
 
-		glm::mat4 model1 = glm::mat4(1.0f);
-		//model1 = glm::translate(model1, glm::vec3(0.0f, 0.0f, 0.0f));
-		//model1 = glm::scale(model1, glm::vec3(1.0f));
-		model_loading_shader.setMat4("model", model1);
+        glm::mat4 model1 = glm::mat4(1.0f);
+        //model1 = glm::translate(model1, glm::vec3(0.0f, 0.0f, 0.0f));
+        //model1 = glm::scale(model1, glm::vec3(1.0f));
+        model_loading_shader.setMat4("model", model1);
         model_loading_shader.setFloat("texScale", 1.0f);
         backpack.Draw(model_loading_shader);
 
@@ -178,7 +183,7 @@ int main()
         model_loading_shader.setFloat("texScale", 8.0f);
         plane.Draw(model_loading_shader);
         glm::mat4 model2 = glm::mat4(1.0f);
-        
+
         model2 = glm::translate(model2, lightPos);
         model2 = glm::scale(model2, glm::vec3(.1f + 0.125f * sin(currentFrame) + 0.25f));
 
@@ -189,11 +194,15 @@ int main()
         lightShader.setVec3("lightColor", diffuseColor);
 
         ball.Draw(lightShader);
-        
-		 // remove translation from the view matrix
+
+        // remove translation from the view matrix
         glDepthFunc(GL_LEQUAL);
-		skyBox.Draw(skyboxShader, projection, view);
+        skyBox.Draw(skyboxShader, projection, view);
         glDepthFunc(GL_LESS);
+
+        
+
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -232,13 +241,18 @@ void processInput(GLFWwindow* window)
 		held = false;
     }
 }
-
+void render()
+{
+   
+}
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
     glViewport(0, 0, width, height);
 }
 
