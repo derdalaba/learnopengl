@@ -4,6 +4,12 @@
 
 #include <assimp/config.h>
 
+#include <imgui/imgui.h>
+
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/imgui_impl_opengl3_loader.h>
+
 #include "./Position.h"
 #include "./Player.h"
 #include "./Model.h"
@@ -20,6 +26,8 @@
 
 #include "./CubeFileParser.h"
 #include <fstream>
+
+#include "RenderObject.h"
 
 #define CUBE_FILE false
 
@@ -78,9 +86,11 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
+
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH * main_scale, SCR_HEIGHT * main_scale, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -91,6 +101,29 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // Setup scaling
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+    style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -119,15 +152,67 @@ int main()
     Model ball("C:\\Users\\chris\\Documents\\blender_models\\ball.obj");
     Model backpack(".\\resources\\backpack\\backpack.obj");
 
+    std::vector<RenderObject> renderQue;
+
+    RenderObject plane_1(&plane, &model_loading_shader);
+    RenderObject ball_1(&ball, &lightShader);
+    RenderObject backpack_1(&backpack, &model_loading_shader);
+
+    renderQue.push_back(plane_1);
+    renderQue.push_back(ball_1);
+    renderQue.push_back(backpack_1);
+
     SkyBox skyBox;
 
    // unsigned int fbo;
    // glGenFramebuffers(1, &fbo);
 
+    glm::vec3 lightPos(5.3f, 5.0f, 5.0f);
+
+    glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.95f);
+
+    glm::mat4 projection = glm::perspective(glm::radians(player.getCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
+    glm::mat4 view = player.getCamera().GetViewMatrix();
+
+    glm::vec3 diffuseColor = glm::vec3(1.0f); // decrease the influence
+    glm::vec3 ambientColor = glm::vec3(0.3f); // low influence
+
+
+    model_loading_shader.use();
+    model_loading_shader.setMat4("projection", projection);
+    model_loading_shader.setMat4("view", view);
+    model_loading_shader.setFloat("gamma", 1.0f);
+
+    model_loading_shader.setVec3("viewPos", player.getCamera().Position);
+
+    model_loading_shader.setVec3("light.position", lightPos);
+    model_loading_shader.setVec3("light.ambient", ambientColor);
+    model_loading_shader.setVec3("light.diffuse", diffuseColor);
+    model_loading_shader.setVec3("light.specular", lightColor);
+
+    model_loading_shader.setFloat("light.constant", 1.0f);
+    model_loading_shader.setFloat("light.linear", 0.09f);
+    model_loading_shader.setFloat("light.quadratic", 0.032f);
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
+        {
+            ImGui_ImplGlfw_Sleep(10);
+            continue;
+        }
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+     
+
+
+
         // per-frame time logic
         // --------------------
         currentFrame = static_cast<float>(glfwGetTime());
@@ -141,31 +226,14 @@ int main()
         processInput(window);
         // render
         // ------
-        glm::vec3 lightPos(5.3f, 5.0f, 5.0f);
-
-        glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.95f);
-
-        glm::mat4 projection = glm::perspective(glm::radians(player.getCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
-        glm::mat4 view = player.getCamera().GetViewMatrix();
-
-        glm::vec3 diffuseColor = glm::vec3(1.0f); // decrease the influence
-        glm::vec3 ambientColor = glm::vec3(0.3f); // low influence
+        projection = glm::perspective(glm::radians(player.getCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
+        view = player.getCamera().GetViewMatrix();
 
         model_loading_shader.use();
         model_loading_shader.setMat4("projection", projection);
         model_loading_shader.setMat4("view", view);
-        model_loading_shader.setFloat("gamma", 1.0f);
 
         model_loading_shader.setVec3("viewPos", player.getCamera().Position);
-
-        model_loading_shader.setVec3("light.position", lightPos);
-        model_loading_shader.setVec3("light.ambient", ambientColor);
-        model_loading_shader.setVec3("light.diffuse", diffuseColor);
-        model_loading_shader.setVec3("light.specular", lightColor);
-
-        model_loading_shader.setFloat("light.constant", 1.0f);
-        model_loading_shader.setFloat("light.linear", 0.09f);
-        model_loading_shader.setFloat("light.quadratic", 0.032f);
 
         glm::mat4 model1 = glm::mat4(1.0f);
         //model1 = glm::translate(model1, glm::vec3(0.0f, 0.0f, 0.0f));
@@ -191,6 +259,7 @@ int main()
         lightShader.setMat4("view", view);
         lightShader.setMat4("model", model2);
         lightShader.setVec3("lightColor", diffuseColor);
+		lightShader.setVec3("viewPos", player.getCamera().Position);
 
         ball.Draw(lightShader);
 
@@ -199,6 +268,10 @@ int main()
         skyBox.Draw(skyboxShader, projection, view);
         glDepthFunc(GL_LESS);
 
+        // Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -206,6 +279,10 @@ int main()
     }
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glfwTerminate();
     return 0;
 }

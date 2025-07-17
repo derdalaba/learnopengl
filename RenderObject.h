@@ -1,24 +1,28 @@
 #include "Model.h"
 #include <shader_m.h>
+#include <glm/glm.hpp>
 
 class RenderObject
 {
 public:
-	RenderObject renderObject(Model model, Shader shader)
+	float texScale = 1.0f;
+	glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+	Model* model;
+	Shader* shader;
+
+	RenderObject(Model* model, Shader* shader)
 	{
 		this->model = model;
 		this->shader = shader;
 	}
-	void Draw() //generate visual output
+	virtual void Draw() //generate visual output
 	{
-		model.Draw(shader);
 	}
 	void Pick(Shader pickShader, int id) //generate uniformally colord meshes for identification/object picking
 	{
 		pickShader.setInt("id", id);
-		model.Draw(pickShader);
+		model->Draw(pickShader);
 	}
 private:
-	Model model;
-	Shader shader;
+	
 };

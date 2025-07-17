@@ -37,7 +37,6 @@ public:
     {
         loadModel(path);
     }
-
     // draws the model, and thus all its meshes
     void Draw(Shader& shader)
     {
@@ -167,6 +166,9 @@ private:
 		// 6. roughness maps
 		std::vector<Texture> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness");
 		textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+		// 7. height maps
+		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_DISPLACEMENT, "texture_height");
+		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
         for (Texture tex : textures) {
 			std::cout << tex.type << " loaded at path: " << tex.path << std::endl;
         }
