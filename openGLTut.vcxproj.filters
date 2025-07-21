@@ -149,6 +149,9 @@
     <ClInclude Include="Scene.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="openGLTut\debs\lib\glfw3.dll" />
@@ -194,6 +197,10 @@
     <None Include="model_loading.fs" />
     <None Include="skybox.fs" />
     <None Include="skybox.vs" />
+    <None Include="fbx_shader.vs" />
+    <None Include="fbx_shader.fs" />
+    <None Include="fbo_shader.vs" />
+    <None Include="fbo_shader.fs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="openGLTut\debs\lib\glfw3.lib" />

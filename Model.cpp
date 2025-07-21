@@ -30,11 +30,13 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
     }
     return textures;
 }
-unsigned int Model::TextureFromFile(const char* path, const string& directory, bool gamma)
+unsigned int Model::TextureFromFile(const char* path, const string& directory)
 {
     string filename = string(path);
+	//filename.erase(0, filename.find_first_not_of(" \t\n\r\f\v")); // trim leading whitespace
     if (!(filename[0] == 'C')) {
-        filename = directory + "/" + path;
+		std::cout << "Loading texture from relative path: " << filename << " directory:" << directory << std::endl;
+        filename = directory + "\\" + filename;
     }
 
     unsigned int textureID;
@@ -65,7 +67,7 @@ unsigned int Model::TextureFromFile(const char* path, const string& directory, b
     }
     else
     {
-        std::cout << "Texture failed to load at path: " << directory + "/" + filename << std::endl;
+        std::cerr << "Texture failed to load at path: " << filename << std::endl;
         stbi_image_free(data);
     }
     return textureID;

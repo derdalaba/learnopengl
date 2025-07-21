@@ -29,6 +29,8 @@
 
 #include "RenderObject.h"
 
+#include "FrameBuffer.h"
+
 #define CUBE_FILE false
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -36,14 +38,20 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void toggleWireFrame();
-void render();
+bool keyIsHeld(int);
+void setKeyIsHeld(int);
+void resetKeyIsHeld(int);
 //void picking();
+
+std::vector<int> heldKeys; 
 
 // settings
 unsigned int SCR_WIDTH = 1600;
 unsigned int SCR_HEIGHT = 1200;
 
 bool wireframe = false;
+
+bool show_demo_window = false;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -57,6 +65,8 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 float currentFrame = static_cast<float>(glfwGetTime());
+
+
 
 int main()
 {   
@@ -121,7 +131,6 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -141,16 +150,41 @@ int main()
     glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 
+    float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
     // build and compile our shader zprogram
     // ------------------------------------
     Shader model_loading_shader("model_loading.vs", "model_loading.fs");
     Shader lightShader("lightCubeShader.vs", "lightCubeShader.fs");
+	Shader fbx_shader("fbx_shader.vs", "fbx_shader.fs");
     Shader skyboxShader("skybox.vs", "skybox.fs");
+	Shader fbo_shader("fbo_shader.vs", "fbo_shader.fs");
 
 
     Model plane("C:\\Users\\chris\\Documents\\blender_models\\grass_ground.obj");
     Model ball("C:\\Users\\chris\\Documents\\blender_models\\ball.obj");
     Model backpack(".\\resources\\backpack\\backpack.obj");
+	Model death("C:\\Users\\chris\\Documents\\blender_models\\source\\DEATH RIGGED.fbx");
 
     std::vector<RenderObject> renderQue;
 
@@ -177,6 +211,8 @@ int main()
     glm::vec3 diffuseColor = glm::vec3(1.0f); // decrease the influence
     glm::vec3 ambientColor = glm::vec3(0.3f); // low influence
 
+	fbo_shader.use();
+	fbo_shader.setInt("screenTexture", 0);
 
     model_loading_shader.use();
     model_loading_shader.setMat4("projection", projection);
@@ -194,10 +230,32 @@ int main()
     model_loading_shader.setFloat("light.linear", 0.09f);
     model_loading_shader.setFloat("light.quadratic", 0.032f);
 
+	fbx_shader.use();
+	fbx_shader.setMat4("projection", projection);
+	fbx_shader.setMat4("view", view);
+	fbx_shader.setVec3("viewPos", player.getCamera().Position);
+	fbx_shader.setFloat("gamma", 1.0f);
+
+	fbx_shader.setVec3("light.position", lightPos);
+	fbx_shader.setVec3("light.ambient", ambientColor);
+	fbx_shader.setVec3("light.diffuse", diffuseColor);
+	fbx_shader.setVec3("light.specular", lightColor);
+
+	fbx_shader.setFloat("light.constant", 1.0f);
+	fbx_shader.setFloat("light.linear", 0.09f);
+	fbx_shader.setFloat("light.quadratic", 0.032f);
+
+	FrameBuffer fbo(SCR_WIDTH, SCR_HEIGHT);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        // per-frame time logic
+        // --------------------
+        currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
@@ -209,30 +267,32 @@ int main()
 
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
-     
 
-
-
-        // per-frame time logic
-        // --------------------
-        currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // input
         // -----
         processInput(window);
+
+        fbo.Bind();
+		glEnable(GL_DEPTH_TEST);
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
         // render
         // ------
+		if (wireframe) 
+        { 
+            glEnable(GL_DEBUG_OUTPUT);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+            
         projection = glm::perspective(glm::radians(player.getCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
         view = player.getCamera().GetViewMatrix();
 
         model_loading_shader.use();
+        model_loading_shader.setFloat("gamma", 1.0f);
         model_loading_shader.setMat4("projection", projection);
         model_loading_shader.setMat4("view", view);
-
         model_loading_shader.setVec3("viewPos", player.getCamera().Position);
 
         glm::mat4 model1 = glm::mat4(1.0f);
@@ -240,17 +300,30 @@ int main()
         //model1 = glm::scale(model1, glm::vec3(1.0f));
         model_loading_shader.setMat4("model", model1);
         model_loading_shader.setFloat("texScale", 1.0f);
+        model_loading_shader.setBool("parallaxMappingEnabled", false);
         backpack.Draw(model_loading_shader);
 
-        model1 = glm::translate(model1, glm::vec3(0.0f, -3.0f, 0.0f));
+		fbx_shader.use();
+		fbx_shader.setFloat("gamma", 1.0f);
+		fbx_shader.setMat4("projection", projection);
+		fbx_shader.setMat4("view", view);
+		fbx_shader.setVec3("viewPos", player.getCamera().Position);
+		glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::scale(model3, glm::vec3(0.1f));
+		model3 = glm::rotate(model3, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model3 = glm::translate(model3, glm::vec3(0.0f, 0.0f, -2.0f));
+		fbx_shader.setMat4("model", model3);
+		death.Draw(fbx_shader);
 
+		model_loading_shader.use();
+		model1 = glm::translate(model1, glm::vec3(0.0f, -3.0f, 0.0f));
         model_loading_shader.setMat4("model", model1);
-
         model_loading_shader.setFloat("gamma", 0.5f);
         model_loading_shader.setFloat("texScale", 8.0f);
+        model_loading_shader.setBool("parallaxMappingEnabled", true);
         plane.Draw(model_loading_shader);
-        glm::mat4 model2 = glm::mat4(1.0f);
 
+        glm::mat4 model2 = glm::mat4(1.0f);
         model2 = glm::translate(model2, lightPos);
         model2 = glm::scale(model2, glm::vec3(.1f + 0.125f * sin(currentFrame) + 0.25f));
 
@@ -268,10 +341,26 @@ int main()
         skyBox.Draw(skyboxShader, projection, view);
         glDepthFunc(GL_LESS);
 
+        if (wireframe)
+        {
+            glDisable(GL_DEBUG_OUTPUT);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        fbo.Unbind();
+		glDisable(GL_DEPTH_TEST);
+
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
+        glClear(GL_COLOR_BUFFER_BIT);
+
+		fbo_shader.use();
+		glBindVertexArray(quadVAO);
+        fbo.BindTexture();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -286,14 +375,27 @@ int main()
     glfwTerminate();
     return 0;
 }
-bool held = false;
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
+
 void processInput(GLFWwindow* window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
+    
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !keyIsHeld(GLFW_KEY_ESCAPE))
+    {
+        setKeyIsHeld(GLFW_KEY_ESCAPE);
+        show_demo_window = !show_demo_window;
+        if (show_demo_window)
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } 
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_RELEASE && keyIsHeld(GLFW_KEY_ESCAPE))
+    {
+        resetKeyIsHeld(GLFW_KEY_ESCAPE);
+        if (!show_demo_window)
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         player.processKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -302,21 +404,32 @@ void processInput(GLFWwindow* window)
         player.processKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         player.processKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !keyIsHeld(GLFW_KEY_SPACE))
     {
-		if (!held) {
-			held = true;
-            toggleWireFrame();
-		}
+		setKeyIsHeld(GLFW_KEY_SPACE);
+		wireframe = !wireframe;
     }
-    else
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && keyIsHeld(GLFW_KEY_SPACE))
     {
-		held = false;
+        resetKeyIsHeld(GLFW_KEY_SPACE);
+	}
+}
+bool keyIsHeld(int key)
+{
+	return std::find(heldKeys.begin(), heldKeys.end(), key) != heldKeys.end();
+}
+void setKeyIsHeld(int key)
+{
+    if (!keyIsHeld(key)) {
+        heldKeys.push_back(key);
     }
 }
-void render()
+void resetKeyIsHeld(int key)
 {
-   
+    auto it = std::find(heldKeys.begin(), heldKeys.end(), key);
+    if (it != heldKeys.end()) {
+        heldKeys.erase(it);
+    }
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -362,7 +475,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void toggleWireFrame()
 {
-    wireframe = !wireframe;
     if (wireframe) {
         glEnable(GL_DEBUG_OUTPUT);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

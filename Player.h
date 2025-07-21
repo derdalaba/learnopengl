@@ -17,7 +17,7 @@ public:
 	void processKeyboard(Camera_Movement direction, float timeDelta);
 	void processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
 	void processMouseScroll(float yoffset);
-	Camera getCamera() { return camera; }
+	Camera& getCamera() { return camera; }
 	~Player();
 private:
 	Camera camera;

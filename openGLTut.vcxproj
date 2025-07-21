@@ -162,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CubeFileParser.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Mesh.h" />
@@ -195,6 +196,10 @@
   <ItemGroup>
     <None Include="cubeShader.fs" />
     <None Include="cubeShader.vs" />
+    <None Include="fbo_shader.fs" />
+    <None Include="fbo_shader.vs" />
+    <None Include="fbx_shader.fs" />
+    <None Include="fbx_shader.vs" />
     <None Include="fragment_shader.fs" />
     <None Include="fxaa.fs" />
     <None Include="fxaa.vs" />
