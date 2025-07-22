@@ -336,6 +336,8 @@ int main()
 		fbo_shader.use();
 		glBindVertexArray(quadVAO);
         fbo.BindTexture();
+		fbo_shader.setFloat("width", static_cast<float>(SCR_WIDTH));
+		fbo_shader.setFloat("height", static_cast<float>(SCR_HEIGHT));
 		glDrawArrays(GL_TRIANGLES, 0, 6);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
