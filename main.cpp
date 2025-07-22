@@ -188,13 +188,17 @@ int main()
 
     std::vector<RenderObject> renderQue;
 
-    RenderObject plane_1(&plane, &model_loading_shader);
-    RenderObject ball_1(&ball, &lightShader);
-    RenderObject backpack_1(&backpack, &model_loading_shader);
+    RenderObject plane_1(plane, model_loading_shader, glm::vec3(0.0f, -3.0f, 0.0f));
+    plane_1.setGamma(0.5f);
+    plane_1.setTexScale(8.0f);
+    RenderObject ball_1(ball, lightShader, glm::vec3(5.3f, 5.0f, 5.0f), glm::vec3(0.5f));
+    RenderObject backpack_1(backpack, model_loading_shader);
+	RenderObject death_1(death, fbx_shader, glm::vec3(0.0f, -1.0f, -2.0f), glm::vec3(0.1f), glm::vec3(-90.0f, 0.0f, 0.0f));
 
     renderQue.push_back(plane_1);
     renderQue.push_back(ball_1);
     renderQue.push_back(backpack_1);
+	renderQue.push_back(death_1);
 
     SkyBox skyBox;
 
@@ -290,51 +294,23 @@ int main()
         view = player.getCamera().GetViewMatrix();
 
         model_loading_shader.use();
-        model_loading_shader.setFloat("gamma", 1.0f);
-        model_loading_shader.setMat4("projection", projection);
-        model_loading_shader.setMat4("view", view);
         model_loading_shader.setVec3("viewPos", player.getCamera().Position);
-
-        glm::mat4 model1 = glm::mat4(1.0f);
-        //model1 = glm::translate(model1, glm::vec3(0.0f, 0.0f, 0.0f));
-        //model1 = glm::scale(model1, glm::vec3(1.0f));
-        model_loading_shader.setMat4("model", model1);
-        model_loading_shader.setFloat("texScale", 1.0f);
-        model_loading_shader.setBool("parallaxMappingEnabled", false);
-        backpack.Draw(model_loading_shader);
-
-		fbx_shader.use();
-		fbx_shader.setFloat("gamma", 1.0f);
-		fbx_shader.setMat4("projection", projection);
-		fbx_shader.setMat4("view", view);
-		fbx_shader.setVec3("viewPos", player.getCamera().Position);
-		glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::scale(model3, glm::vec3(0.1f));
-		model3 = glm::rotate(model3, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model3 = glm::translate(model3, glm::vec3(0.0f, 0.0f, -2.0f));
-		fbx_shader.setMat4("model", model3);
-		death.Draw(fbx_shader);
-
-		model_loading_shader.use();
-		model1 = glm::translate(model1, glm::vec3(0.0f, -3.0f, 0.0f));
-        model_loading_shader.setMat4("model", model1);
-        model_loading_shader.setFloat("gamma", 0.5f);
-        model_loading_shader.setFloat("texScale", 8.0f);
+		model_loading_shader.setBool("parallaxMappingEnabled", false);
+		backpack_1.Draw(projection, view);
+        
         model_loading_shader.setBool("parallaxMappingEnabled", true);
-        plane.Draw(model_loading_shader);
+		plane_1.Draw(projection, view);
+
+		death_1.Draw(projection, view);
 
         glm::mat4 model2 = glm::mat4(1.0f);
         model2 = glm::translate(model2, lightPos);
-        model2 = glm::scale(model2, glm::vec3(.1f + 0.125f * sin(currentFrame) + 0.25f));
 
         lightShader.use();
-        lightShader.setMat4("projection", projection);
-        lightShader.setMat4("view", view);
-        lightShader.setMat4("model", model2);
         lightShader.setVec3("lightColor", diffuseColor);
 		lightShader.setVec3("viewPos", player.getCamera().Position);
 
-        ball.Draw(lightShader);
+        ball_1.Draw(projection, view);
 
         // remove translation from the view matrix
         glDepthFunc(GL_LEQUAL);
