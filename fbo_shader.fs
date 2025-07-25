@@ -15,6 +15,7 @@ in vec2 TexCoords;
 uniform sampler2D screenTexture;
 uniform float width;
 uniform float height;
+uniform float time;
 
 const float offset = 1.0 / 300; 
 
@@ -30,8 +31,6 @@ vec2 kpos(int index)
 
 
 // Extract region of dimension 3x3 from sampler centered in uv
-// sampler : texture sampler
-// uv : current coordinates on sampler
 // return : an array of mat3, each index corresponding with a color channel
 mat3[3] region3x3()
 {
@@ -56,8 +55,6 @@ mat3[3] region3x3()
 
 // Convolve a texture with kernel
 // kernel : kernel used for convolution
-// sampler : texture sampler
-// uv : current coordinates on sampler
 vec3 convolution(mat3 kernel)
 {
     vec3 fragment;
@@ -84,11 +81,52 @@ vec3 convolution(mat3 kernel)
     return fragment;    
 }
 
+// A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
+uint hash( uint x ) {
+    x += ( x << 10u );
+    x ^= ( x >>  6u );
+    x += ( x <<  3u );
+    x ^= ( x >> 11u );
+    x += ( x << 15u );
+    return x;
+}
+
+// Compound versions of the hashing algorithm I whipped together.
+uint hash( uvec2 v ) { return hash( v.x ^ hash(v.y)                         ); }
+uint hash( uvec3 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z)             ); }
+uint hash( uvec4 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) ); }
+
+// Construct a float with half-open range [0:1] using low 23 bits.
+// All zeroes yields 0.0, all ones yields the next smallest representable value below 1.0.
+float floatConstruct( uint m ) {
+    const uint ieeeMantissa = 0x007FFFFFu; // binary32 mantissa bitmask
+    const uint ieeeOne      = 0x3F800000u; // 1.0 in IEEE binary32
+
+    m &= ieeeMantissa;                     // Keep only mantissa bits (fractional part)
+    m |= ieeeOne;                          // Add fractional part to 1.0
+
+    float  f = uintBitsToFloat( m );       // Range [1:2]
+    return f - 1.0;                        // Range [0:1]
+}
+
+// Pseudo-random value in half-open range [0:1].
+float random( float x ) { return floatConstruct(hash(floatBitsToUint(x))); }
+float random( vec2  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+float random( vec3  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+float random( vec4  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+
 void main()
 {
     // Convolve kernel with texture
-    vec3 col = convolution(sharpen);
-    
+    //vec3 col = convolution(sharpen);
+    vec3 col = texture(screenTexture, TexCoords).rgb; // No convolution, just pass through
+    vec3 inputs = vec3(round((gl_FragCoord.xy)), time);
+    float wave = sin(gl_FragCoord.y + time * 0.125 + random(gl_FragCoord.x)) * 0.5 + 0.5;
+    vec3 lines = vec3(0.0, wave, wave);
+    vec3 luma = vec3(random(inputs));
+
+    vec3 result = vec3(1.0) - exp(-(col + luma*0.125 + wave*0.1) * 2.0);
+    result = pow(result, vec3(1.0 / 0.7)); // Gamma correction
     // Output to screen
-    FragColor = vec4(col, 1.0);
+    FragColor = vec4(result, 1.0);
 }

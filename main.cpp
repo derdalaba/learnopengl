@@ -53,6 +53,8 @@ bool wireframe = false;
 
 bool show_demo_window = false;
 
+bool resizeWindow = false;
+
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -109,6 +111,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetWindowSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
@@ -260,6 +263,12 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        if (resizeWindow)
+        {
+			fbo.Resize(SCR_WIDTH, SCR_HEIGHT);
+            resizeWindow = false;
+		}
+        
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
@@ -338,6 +347,7 @@ int main()
         fbo.BindTexture();
 		fbo_shader.setFloat("width", static_cast<float>(SCR_WIDTH));
 		fbo_shader.setFloat("height", static_cast<float>(SCR_HEIGHT));
+		fbo_shader.setFloat("time", currentFrame);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -418,6 +428,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     SCR_WIDTH = width;
     SCR_HEIGHT = height;
     glViewport(0, 0, width, height);
+	resizeWindow = true;
+	std::cout << "Framebuffer size changed to: " << width << "x" << height << std::endl;
 }
 
 
