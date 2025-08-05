@@ -76,7 +76,7 @@
     <LibraryPath>$(SolutionDir)openGLTut\debs\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\chris\Desktop\assimp\include;$(SolutionDir)openGLTut\debs\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)openGLTut\debs\include\imgui;C:\Users\chris\Desktop\assimp\include;$(SolutionDir)openGLTut\debs\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)openGLTut\debs\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -133,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)openGLTut/debs/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)openGLTut\debs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

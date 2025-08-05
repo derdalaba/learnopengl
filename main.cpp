@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
+#include <chrono>
+#include <thread>
+
 #include <assimp/config.h>
 
 #include <imgui/imgui.h>
@@ -44,6 +47,8 @@ void resetKeyIsHeld(int);
 //void picking();
 
 std::vector<int> heldKeys; 
+
+static const float frameTime = 0.008f;
 
 // settings
 unsigned int SCR_WIDTH = 1600;
@@ -262,6 +267,8 @@ int main()
         currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        
+        glfwSetWindowTitle(window, ("LearnOpenGL - FPS: " + std::to_string(static_cast<int>(1.0f / deltaTime))).c_str());
 
         if (resizeWindow)
         {
@@ -353,6 +360,14 @@ int main()
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        
+		float drawTime = static_cast<float>(glfwGetTime()) - currentFrame;
+
+        if (drawTime < frameTime) // 125 FPS
+        {
+			std::chrono::milliseconds sleepDuration(static_cast<int>((frameTime - drawTime) * 1000));
+            std::this_thread::sleep_for(sleepDuration); // Sleep for the remaining time to maintain a stable frame rate
+		}
     }
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------

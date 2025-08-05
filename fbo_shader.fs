@@ -125,7 +125,7 @@ void main()
     vec3 lines = vec3(0.0, wave, wave);
     vec3 luma = vec3(random(inputs));
 
-    vec3 result = vec3(1.0) - exp(-(col + luma*0.125 + wave*0.1) * 2.0);
+    vec3 result = vec3(1.0) - exp(-(col + luma*0.125*0.5 + wave*0.1) * 2.0);
     result = pow(result, vec3(1.0 / 0.7)); // Gamma correction
     // Output to screen
     FragColor = vec4(result, 1.0);
