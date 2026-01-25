@@ -152,6 +152,15 @@
     <ClInclude Include="FrameBuffer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="BVH.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="BVH_Node.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="openGLTut\debs\lib\glfw3.dll" />
@@ -161,7 +170,7 @@
     <None Include="openGLTut\debs\include\glm\gtx\float_normalize.inl">
       <Filter>Headerdateien</Filter>
     </None>
-    <None Include="vertex_shader.vs" />
+    <None Include="shader\vertex_shader.vs" />
     <None Include="openGLTut\debs\include\glm\detail\type_gentype.inl">
       <Filter>Headerdateien</Filter>
     </None>
@@ -186,21 +195,23 @@
     <None Include="openGLTut\debs\include\glm\gtx\number_precision.inl">
       <Filter>Headerdateien</Filter>
     </None>
-    <None Include="cubeShader.fs" />
-    <None Include="cubeShader.vs" />
-    <None Include="fragment_shader.fs" />
-    <None Include="lightCubeShader.fs" />
-    <None Include="lightCubeShader.vs" />
-    <None Include="fxaa.vs" />
-    <None Include="fxaa.fs" />
-    <None Include="model_loading.vs" />
-    <None Include="model_loading.fs" />
-    <None Include="skybox.fs" />
-    <None Include="skybox.vs" />
-    <None Include="fbx_shader.vs" />
-    <None Include="fbx_shader.fs" />
-    <None Include="fbo_shader.vs" />
-    <None Include="fbo_shader.fs" />
+    <None Include="shader\cubeShader.fs" />
+    <None Include="shader\cubeShader.vs" />
+    <None Include="shader\fragment_shader.fs" />
+    <None Include="shader\lightCubeShader.fs" />
+    <None Include="shader\lightCubeShader.vs" />
+    <None Include="shader\fxaa.vs" />
+    <None Include="shader\fxaa.fs" />
+    <None Include="shader\model_loading.vs" />
+    <None Include="shader\model_loading.fs" />
+    <None Include="shader\skybox.fs" />
+    <None Include="shader\skybox.vs" />
+    <None Include="shader\fbx_shader.vs" />
+    <None Include="shader\fbx_shader.fs" />
+    <None Include="shader\fbo_shader.vs" />
+    <None Include="shader\fbo_shader.fs" />
+    <None Include="shader\boxShader.vs" />
+    <None Include="shader\boxShader.fs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="openGLTut\debs\lib\glfw3.lib" />

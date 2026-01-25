@@ -16,6 +16,11 @@ using namespace std;
 
 #define MAX_BONE_INFLUENCE 4
 
+struct Face {
+    unsigned int mNumIndices;
+    unsigned int* mIndices;
+};
+
 struct Vertex {
     // position
     glm::vec3 Position;
@@ -45,6 +50,7 @@ public:
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<Texture>      textures;
+	vector<Face>         faces;
     unsigned int VAO;
 
     // constructor
@@ -56,6 +62,13 @@ public:
 
         // now that we have all the required data, set the vertex buffers and its attribute pointers.
         setupMesh();
+        setupFaces();
+    }
+
+    Mesh(unsigned int sidelenght) 
+    {
+        // Generate plane with given side length
+
     }
 
     // render the mesh
@@ -149,6 +162,21 @@ private:
         glEnableVertexAttribArray(6);
         glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
         glBindVertexArray(0);
+    }
+
+    void setupFaces()
+    {
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            Face face;
+            face.mNumIndices = 3;
+            face.mIndices = new unsigned int[3];
+            face.mIndices[0] = indices[i];
+            face.mIndices[1] = indices[i + 1];
+            face.mIndices[2] = indices[i + 2];
+
+            faces.push_back(face);
+        }
+
     }
 };
 #endif

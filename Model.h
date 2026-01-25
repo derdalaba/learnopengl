@@ -19,9 +19,21 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <chrono>
+
 using namespace std;
 
+struct Pill
+{
+    glm::vec3 position;
+    float radius;
+    float height;
 
+    bool intersect(Face face)
+    {
+
+    }
+};
 
 class Model
 {
@@ -30,14 +42,42 @@ public:
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh>    meshes;
     string directory;
-    
+    Pill pill;
+
+    Model(float sideLength, unsigned int divisions, std::string texturePath) 
+    {
+        chrono::steady_clock::time_point begin = chrono::steady_clock::now();
+		// Generate a plane model procedurally
+        vector<Vertex> vertices = generatePlaneVertices(sideLength, divisions);
+        vector<unsigned int> indices = generatePlaneIndices(vertices);
+		Texture texture;
+		texture.id = TextureFromFile(texturePath.c_str(), "");
+		texture.type = "texture_height";
+		texture.path = texturePath;
+		textures_loaded.push_back(texture);
+		meshes.push_back(Mesh(vertices, indices, textures_loaded));
+		chrono::steady_clock::time_point end = chrono::steady_clock::now();
+		cout << "Procedural plane model generated in milliseconds: " << chrono::duration_cast<chrono::milliseconds>(end - begin).count() << " ms" << endl;
+    }
 
     // constructor, expects a filepath to a 3D model.
     Model(string const& path)
     {
+		chrono::steady_clock::time_point begin = chrono::steady_clock::now();
         loadModel(path);
+        for (Texture tex : textures_loaded) {
+            std::cout << tex.type << " loaded at path: " << tex.path << std::endl;
+        }
+		chrono::steady_clock::time_point end = chrono::steady_clock::now();
+		cout << "Model loaded in milliseconds: " << chrono::duration_cast<chrono::milliseconds>(end - begin).count() << " ms" << endl;
     }
     // draws the model, and thus all its meshes
+    Model(string const& path, Pill pill)
+    {
+        loadModel(path);
+		this->pill = pill;
+	}
+
     void Draw(Shader& shader)
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
@@ -45,6 +85,51 @@ public:
     }
     unsigned int TextureFromFile(const char* path, const string& directory);
 private:
+    vector<Vertex> generatePlaneVertices(float sideLength, unsigned int divisions)
+    {
+        double unit = (sideLength / divisions);
+        vector<Vertex> vertices;
+        float halfSide = sideLength / 2.0f;
+        for (unsigned int z = 0; z <= divisions; z++)
+        {
+            for (unsigned int x = 0; x <= divisions; x++)
+            {
+                Vertex vertex;
+                vertex.Position = glm::vec3(unit * x - halfSide, 0.0f, unit * z - halfSide);
+                vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(static_cast<float>(x) / divisions, static_cast<float>(z) / divisions);
+                vertex.Tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+                vertex.Bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
+                vertices.push_back(vertex);
+            }
+        }
+		return vertices;
+    }
+
+    vector<unsigned int> generatePlaneIndices(const vector<Vertex>& vertices)
+    {
+        vector<unsigned int> indices;
+        unsigned int sideLength = static_cast<unsigned int>(sqrt(vertices.size())) - 1;
+        for (unsigned int z = 0; z < sideLength; z++)
+        {
+            for (unsigned int x = 0; x < sideLength; x++)
+            {
+                unsigned int topLeft = z * (sideLength + 1) + x;
+                unsigned int topRight = topLeft + 1;
+                unsigned int bottomLeft = (z + 1) * (sideLength + 1) + x;
+                unsigned int bottomRight = bottomLeft + 1;
+                // First triangle
+                indices.push_back(topLeft);
+                indices.push_back(bottomLeft);
+                indices.push_back(topRight);
+                // Second triangle
+                indices.push_back(topRight);
+                indices.push_back(bottomLeft);
+                indices.push_back(bottomRight);
+            }
+		}
+        return indices;
+	}
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const& path)
     {
@@ -169,9 +254,7 @@ private:
 		// 7. height maps
 		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_DISPLACEMENT, "texture_height");
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-        for (Texture tex : textures) {
-			std::cout << tex.type << " loaded at path: " << tex.path << std::endl;
-        }
+        
         // return a mesh object created from the extracted mesh data
         return Mesh(vertices, indices, textures);
     }

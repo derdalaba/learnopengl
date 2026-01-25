@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\openGLTut\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -161,8 +161,11 @@
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BVH.h" />
+    <ClInclude Include="BVH_Node.h" />
     <ClInclude Include="CubeFileParser.h" />
     <ClInclude Include="FrameBuffer.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Mesh.h" />
@@ -194,19 +197,21 @@
     <ClInclude Include="Position.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cubeShader.fs" />
-    <None Include="cubeShader.vs" />
-    <None Include="fbo_shader.fs" />
-    <None Include="fbo_shader.vs" />
-    <None Include="fbx_shader.fs" />
-    <None Include="fbx_shader.vs" />
-    <None Include="fragment_shader.fs" />
-    <None Include="fxaa.fs" />
-    <None Include="fxaa.vs" />
-    <None Include="lightCubeShader.fs" />
-    <None Include="lightCubeShader.vs" />
-    <None Include="model_loading.fs" />
-    <None Include="model_loading.vs" />
+    <None Include="shader\boxShader.fs" />
+    <None Include="shader\boxShader.vs" />
+    <None Include="shader\cubeShader.fs" />
+    <None Include="shader\cubeShader.vs" />
+    <None Include="shader\fbo_shader.fs" />
+    <None Include="shader\fbo_shader.vs" />
+    <None Include="shader\fbx_shader.fs" />
+    <None Include="shader\fbx_shader.vs" />
+    <None Include="shader\fragment_shader.fs" />
+    <None Include="shader\fxaa.fs" />
+    <None Include="shader\fxaa.vs" />
+    <None Include="shader\lightCubeShader.fs" />
+    <None Include="shader\lightCubeShader.vs" />
+    <None Include="shader\model_loading.fs" />
+    <None Include="shader\model_loading.vs" />
     <None Include="openGLTut\debs\include\glm\detail\type_gentype.inl" />
     <None Include="openGLTut\debs\include\glm\detail\type_mat.inl" />
     <None Include="openGLTut\debs\include\glm\detail\type_vec.inl" />
@@ -218,9 +223,9 @@
     <None Include="openGLTut\debs\include\glm\gtx\float_normalize.inl" />
     <None Include="openGLTut\debs\include\glm\gtx\number_precision.inl" />
     <None Include="openGLTut\debs\lib\glfw3.dll" />
-    <None Include="skybox.fs" />
-    <None Include="skybox.vs" />
-    <None Include="vertex_shader.vs" />
+    <None Include="shader\skybox.fs" />
+    <None Include="shader\skybox.vs" />
+    <None Include="shader\vertex_shader.vs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="openGLTut\debs\lib\assimp-vc143-mtd.lib" />

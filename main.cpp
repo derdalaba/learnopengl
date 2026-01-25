@@ -34,6 +34,8 @@
 
 #include "FrameBuffer.h"
 
+#include "./Scene.h"
+
 #define CUBE_FILE false
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -44,7 +46,6 @@ void toggleWireFrame();
 bool keyIsHeld(int);
 void setKeyIsHeld(int);
 void resetKeyIsHeld(int);
-//void picking();
 
 std::vector<int> heldKeys; 
 
@@ -64,9 +65,13 @@ bool resizeWindow = false;
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
+float heightScale = 0.1f;
+bool parallax = true;
 bool firstMouse = true;
 
 Player player(camera);
+
+Scene* scene;
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -182,33 +187,63 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader model_loading_shader("model_loading.vs", "model_loading.fs");
-    Shader lightShader("lightCubeShader.vs", "lightCubeShader.fs");
-	Shader fbx_shader("fbx_shader.vs", "fbx_shader.fs");
-    Shader skyboxShader("skybox.vs", "skybox.fs");
-	Shader fbo_shader("fbo_shader.vs", "fbo_shader.fs");
+    Shader model_loading_shader("shader/model_loading.vs", "shader/model_loading.fs");
+    Shader lightShader("shader/lightCubeShader.vs", "shader/lightCubeShader.fs");
+	Shader fbx_shader("shader/fbx_shader.vs", "shader/fbx_shader.fs");
+    Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
+	Shader fbo_shader("shader/fbo_shader.vs", "shader/fbo_shader.fs");
+	Shader boxShader("shader/boxShader.vs", "shader/boxShader.fs");
+	Shader terrainShader("shader/terrain.vs", "shader/terrain.fs");
+
+	Assimp::Importer importer;
+	std::string path = ".\\resources\\animations\\Shooting Arrow.fbx";
+	const aiScene* animationScene = importer.ReadFile(path, aiProcess_Triangulate);
+    
+    if (not animationScene)
+    {
+        std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+		return -1;
+	}
+
+    std::cout << "FBX file loaded successfully." << std::endl;
+    if (animationScene->HasAnimations())
+    {
+
+        std::cout << "Number of animations: " << animationScene->mNumAnimations << " Name: " << animationScene->mName.C_Str() << " Number of skeletons: " << animationScene->mNumSkeletons << std::endl;
+    }
 
 
     Model plane("C:\\Users\\chris\\Documents\\blender_models\\grass_ground.obj");
     Model ball("C:\\Users\\chris\\Documents\\blender_models\\ball.obj");
     Model backpack(".\\resources\\backpack\\backpack.obj");
-	Model death("C:\\Users\\chris\\Documents\\blender_models\\source\\DEATH RIGGED.fbx");
+	Model death("C:\\Users\\chris\\Documents\\blender_models\\death.obj");
+	Model pill("C:\\Users\\chris\\Documents\\blender_models\\pill.obj");
+    Model box("C:\\Users\\chris\\Documents\\blender_models\\cube.obj");
+	Model quad("C:\\Users\\chris\\Documents\\blender_models\\quad.obj");
+	//Model terrain("C:\\Users\\chris\\Documents\\blender_models\\terrain_plain.fbx");
+    Model terrain(100.0f, 2600, "C:\\Users\\chris\\source\\repos\\learnopengl\\resources\\textures\\iceland_heightmap.png");
+	RenderObject box_1(box, boxShader);
 
-    std::vector<RenderObject> renderQue;
-
-    RenderObject plane_1(plane, model_loading_shader, glm::vec3(0.0f, -3.0f, 0.0f));
+    RenderObject plane_1(plane, model_loading_shader, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(5.0f));
+    plane_1.genBoundingBox();
     plane_1.setGamma(0.5f);
     plane_1.setTexScale(8.0f);
     RenderObject ball_1(ball, lightShader, glm::vec3(5.3f, 5.0f, 5.0f), glm::vec3(0.5f));
-    RenderObject backpack_1(backpack, model_loading_shader);
-	RenderObject death_1(death, fbx_shader, glm::vec3(0.0f, -1.0f, -2.0f), glm::vec3(0.1f), glm::vec3(-90.0f, 0.0f, 0.0f));
+    RenderObject backpack_1(backpack, model_loading_shader, glm::vec3(0.0f, 0.38f, -0.38f), glm::vec3(0.18f), glm::vec3(0.0f, 180.0f, 0.0f));
+	RenderObject death_1(death, fbx_shader, glm::vec3(0.0f, -1.0f, 0.0f));
+	death_1.genBoundingBox();
+	death_1.setGamma(0.5f);
 
-    renderQue.push_back(plane_1);
-    renderQue.push_back(ball_1);
-    renderQue.push_back(backpack_1);
-	renderQue.push_back(death_1);
+	RenderObject quad_1(quad, model_loading_shader, glm::vec3(0.0f));
 
-    SkyBox skyBox;
+    SkyBox skyBox{".\\resources\\skybox", &skyboxShader};
+
+	RenderObject terrain_1(terrain, terrainShader, glm::vec3(0.0f, -0.1f, 0.0f), glm::vec3(1.0f));
+
+    std::vector<Shader*> shaders{&model_loading_shader, &lightShader, &fbx_shader, &fbo_shader, &boxShader};
+    std::vector<RenderObject> objs{plane_1, ball_1, backpack_1, death_1, quad_1, terrain_1 };
+	std::vector<Camera*> cameras{ &player.getCamera() };
+    scene = new Scene{ shaders, objs, cameras, &skyBox, SCR_WIDTH, SCR_HEIGHT};
 
    // unsigned int fbo;
    // glGenFramebuffers(1, &fbo);
@@ -230,6 +265,7 @@ int main()
     model_loading_shader.setMat4("projection", projection);
     model_loading_shader.setMat4("view", view);
     model_loading_shader.setFloat("gamma", 1.0f);
+	model_loading_shader.setFloat("heightScale", heightScale);
 
     model_loading_shader.setVec3("viewPos", player.getCamera().Position);
 
@@ -241,6 +277,23 @@ int main()
     model_loading_shader.setFloat("light.constant", 1.0f);
     model_loading_shader.setFloat("light.linear", 0.09f);
     model_loading_shader.setFloat("light.quadratic", 0.032f);
+
+    terrainShader.use();
+    terrainShader.setMat4("projection", projection);
+    terrainShader.setMat4("view", view);
+    terrainShader.setFloat("gamma", 1.0f);
+    terrainShader.setFloat("heightScale", heightScale);
+
+    terrainShader.setVec3("viewPos", player.getCamera().Position);
+
+    terrainShader.setVec3("light.position", lightPos);
+    terrainShader.setVec3("light.ambient", ambientColor);
+    terrainShader.setVec3("light.diffuse", diffuseColor);
+    terrainShader.setVec3("light.specular", lightColor);
+
+    terrainShader.setFloat("light.constant", 1.0f);
+    terrainShader.setFloat("light.linear", 0.09f);
+    terrainShader.setFloat("light.quadratic", 0.032f);
 
 	fbx_shader.use();
 	fbx_shader.setMat4("projection", projection);
@@ -258,6 +311,8 @@ int main()
 	fbx_shader.setFloat("light.quadratic", 0.032f);
 
 	FrameBuffer fbo(SCR_WIDTH, SCR_HEIGHT);
+
+	glm::vec3 viewPos = player.getCamera().Position;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -304,41 +359,24 @@ int main()
         { 
             glEnable(GL_DEBUG_OUTPUT);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
-            
-        projection = glm::perspective(glm::radians(player.getCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
-        view = player.getCamera().GetViewMatrix();
-
+        } 
         model_loading_shader.use();
-        model_loading_shader.setVec3("viewPos", player.getCamera().Position);
-		model_loading_shader.setBool("parallaxMappingEnabled", false);
-		backpack_1.Draw(projection, view);
-        
-        model_loading_shader.setBool("parallaxMappingEnabled", true);
-		plane_1.Draw(projection, view);
 
-		death_1.Draw(projection, view);
+		model_loading_shader.setBool("parallaxMappingEnabled", parallax);
+		model_loading_shader.setFloat("heightScale", heightScale);
 
-        glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, lightPos);
+		terrainShader.use();
+		terrainShader.setFloat("heightScale", heightScale);
 
-        lightShader.use();
-        lightShader.setVec3("lightColor", diffuseColor);
-		lightShader.setVec3("viewPos", player.getCamera().Position);
-
-        ball_1.Draw(projection, view);
-
-        // remove translation from the view matrix
-        glDepthFunc(GL_LEQUAL);
-        skyBox.Draw(skyboxShader, projection, view);
-        glDepthFunc(GL_LESS);
+		fbx_shader.use();
+        scene->Draw();
 
         if (wireframe)
         {
             glDisable(GL_DEBUG_OUTPUT);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
-
+        
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -407,15 +445,33 @@ void processInput(GLFWwindow* window)
         player.processKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         player.processKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !keyIsHeld(GLFW_KEY_SPACE))
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		player.processKeyboard(UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		player.processKeyboard(DOWN, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+		heightScale += 0.01f;
+	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+		heightScale -= 0.01f;
+    
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !keyIsHeld(GLFW_KEY_C))
     {
-		setKeyIsHeld(GLFW_KEY_SPACE);
+		setKeyIsHeld(GLFW_KEY_C);
 		wireframe = !wireframe;
     }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && keyIsHeld(GLFW_KEY_SPACE))
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE && keyIsHeld(GLFW_KEY_C))
     {
-        resetKeyIsHeld(GLFW_KEY_SPACE);
+        resetKeyIsHeld(GLFW_KEY_C);
 	}
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && !keyIsHeld(GLFW_KEY_X))
+	{
+        setKeyIsHeld(GLFW_KEY_X);
+        parallax = !parallax;
+    }
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_RELEASE && keyIsHeld(GLFW_KEY_X))
+    {
+        resetKeyIsHeld(GLFW_KEY_X);
+    }
 }
 bool keyIsHeld(int key)
 {
@@ -444,6 +500,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     SCR_HEIGHT = height;
     glViewport(0, 0, width, height);
 	resizeWindow = true;
+	scene->updateScreenSize(width, height);
 	std::cout << "Framebuffer size changed to: " << width << "x" << height << std::endl;
 }
 

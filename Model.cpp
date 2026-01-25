@@ -34,7 +34,8 @@ unsigned int Model::TextureFromFile(const char* path, const string& directory)
 {
     string filename = string(path);
 	//filename.erase(0, filename.find_first_not_of(" \t\n\r\f\v")); // trim leading whitespace
-    if (!(filename[0] == 'C')) {
+    if (!(filename[0] == 'C'))
+    {
 		std::cout << "Loading texture from relative path: " << filename << " directory:" << directory << std::endl;
         filename = directory + "\\" + filename;
     }
@@ -64,6 +65,10 @@ unsigned int Model::TextureFromFile(const char* path, const string& directory)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data);
+    }
+    else if (data == NULL)
+    {
+        std::cout << stbi_failure_reason() << std::endl;
     }
     else
     {

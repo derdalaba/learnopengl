@@ -1,3 +1,4 @@
+#pragma once
 #include <glad/glad.h>
 #include <shader_m.h>
 #include <stb_image.h>
@@ -10,6 +11,8 @@
 class SkyBox
 {
 public:
+	Shader* shader;
+	std::string path;
 	float farPlaneDist;
 	unsigned int textureID;
 	unsigned int skyboxVAO;
@@ -17,32 +20,61 @@ public:
 
 	std::vector<std::string> faces
 	{
-		".\\resources\\skybox\\right.jpg",
-		".\\resources\\skybox\\left.jpg",
-		".\\resources\\skybox\\top.jpg",
-		".\\resources\\skybox\\bottom.jpg",
-		".\\resources\\skybox\\front.jpg",
-		".\\resources\\skybox\\back.jpg"
+        path + "\\right.jpg",
+		path + "\\left.jpg",
+		path + "\\top.jpg",
+		path + "\\bottom.jpg",
+		path + "\\front.jpg",
+		path + "\\back.jpg"
 	};
-	SkyBox() {
+    SkyBox(std::string path, Shader* shader) : path{ path }, shader{shader} {
 		loadCubemap(faces);
         initBuffers();
 	}
-	void Draw(Shader& shader, glm::mat4 projection, glm::mat4 view) {
-       
-        shader.use();
-		shader.setMat4("projection", projection);
-		shader.setMat4("view", glm::mat4(glm::mat3(view))); // remove translation from the view matrix
+    SkyBox(SkyBox&& other) noexcept
+        : path(std::move(other.path)),
+          farPlaneDist(other.farPlaneDist),
+          textureID(other.textureID),
+          skyboxVAO(other.skyboxVAO),
+          VBO(other.VBO),
+          faces(std::move(other.faces))
+    {
+        other.textureID = 0;
+        other.skyboxVAO = 0;
+        other.VBO = 0;
+	}
+    SkyBox(const SkyBox& other) 
+        : path(other.path),
+          farPlaneDist(other.farPlaneDist),
+          textureID(other.textureID),
+          skyboxVAO(other.skyboxVAO),
+          VBO(other.VBO),
+          faces(other.faces)
+    {}
+    SkyBox& operator=(const SkyBox& other) {
+        if (this != &other) {
+            path = other.path;
+            farPlaneDist = other.farPlaneDist;
+            textureID = other.textureID;
+            skyboxVAO = other.skyboxVAO;
+            VBO = other.VBO;
+            faces = other.faces;
+        }
+        return *this;
+	}
+	void Draw(glm::mat4 projection, glm::mat4 view) {
+        glDepthFunc(GL_LEQUAL);
+        shader->use();
+		shader->setMat4("projection", projection);
+		shader->setMat4("view", glm::mat4(glm::mat3(view))); // remove translation from the view matrix
         // ... set view and projection matrix
-
-        
-
         glBindVertexArray(skyboxVAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+        glDepthFunc(GL_LESS);
 	}
 private:
     unsigned int VBO;
